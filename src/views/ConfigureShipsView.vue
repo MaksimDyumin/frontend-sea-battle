@@ -7,8 +7,8 @@ import { useGameStore } from '@/stores/game';
 
 const gameStore = useGameStore()
 
-function setShipsConfig() {
-  gameStore.setShipsConfig(gameStore.gameBoard)
+async function setShipsConfig() {
+  await gameStore.setShipsConfig(gameStore.gameBoard)
 }
 
 </script>

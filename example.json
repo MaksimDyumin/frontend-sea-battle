@@ -1,0 +1,16 @@
+{
+  "cells": [
+    {
+      "id": 6,
+      "state": "SX",
+      "coordinate_y": 1,
+      "coordinate_x": 1
+    },
+    {
+      "id": 7,
+      "state": "S ",
+      "coordinate_y": 1,
+      "coordinate_x": 2
+    }
+  ]
+}
