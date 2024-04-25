@@ -6,8 +6,8 @@
 
     <form @submit.prevent="handleRegistration">
       <div class="form-group">
-        <label for="email">Имя:</label>
-        <input type="email" id="email" v-model="userName" required>
+        <label for="text">Имя:</label>
+        <input type="text" id="email" v-model="username" required>
       </div>
 
       <div class="form-group">
@@ -28,14 +28,20 @@ import { useUserStore } from '@/stores/user';
 import { ref, type Ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
-const userName: Ref<string> = ref('')
+const username: Ref<string> = ref('')
 const password: Ref<string> = ref('')
 const errorMessage: Ref<string> = ref('')
 const router = useRouter()
 const userStore = useUserStore()
 
 async function handleRegistration() {
-  userStore.register({ userName: userName.value, password: password.value })
+  const registerResponse = await userStore.register({ username: username.value, password: password.value })
+  if (!registerResponse) return
+
+  const authResponse = await userStore.auth({ username: username.value, password: password.value })
+  if (!authResponse) return
+
+  router.push('/')
 }
 
 function goToLogin() {
@@ -62,7 +68,7 @@ label {
   font-weight: bold;
 }
 
-input[type="email"],
+input[type="text"],
 input[type="password"] {
   width: 100%;
   padding: 10px;

@@ -14,7 +14,9 @@ const gameStore = useGameStore()
 
 function setShipToBoard(cell: BoardCell) {
   if (!gameStore.enabledOrientation || !gameStore.isChoosing) return
-  gameStore.positionShip(gameStore.shipLength, cell)
+
+  const coord = (cell.coordinateY * 10) + cell.coordinateX
+  gameStore.positionShip(gameStore.shipLength, gameStore.gameBoard[coord])
   const el: HTMLElement = gameStore.choosedElement
   window.removeEventListener('mousemove', gameStore.mosemoveFn)
   gameStore.isChoosing = false
@@ -28,6 +30,7 @@ function deleteShipFromBoard(cell: BoardCell) {
       if (boardCell == cell) flag = true
     })
     if (flag) {
+      console.log(ship)
       ship.forEach((boardCell) => {
         boardCell.isShip = false
         boardCell.isShooted = false

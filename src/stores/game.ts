@@ -5,6 +5,8 @@ import { Orientation, type BoardCell, type GameBoard, type Ship } from './store.
 import { boardMocer } from '@/useApi/mocBoard'
 import { calcIndexByCoordinates } from '@/useApi/calcCoordinate'
 import useAxios from '@/useApi/useAxios'
+import mapCellObject from '@/useApi/mapCellObject'
+import reversMapCellObject from '@/useApi/reversMapCellObject'
 
 export const useGameStore = defineStore('game', () => {
   const gameBoard: UnwrapNestedRefs<GameBoard> = reactive(boardMocer())
@@ -13,7 +15,7 @@ export const useGameStore = defineStore('game', () => {
   const orientation: Ref<Orientation> = ref(Orientation.onX)
   const enabledOrientation: Ref<boolean> = ref(true)
   const isChoosing: Ref<boolean> = ref(false)
-  const axios = useAxios()
+  const axios = useAxios().api
   let deleteMode = false
   let ships: Array<Ship> = []
   let rCounter = 1
@@ -37,28 +39,46 @@ export const useGameStore = defineStore('game', () => {
   }
 
   async function setShipsConfig(board: GameBoard) {
-    const STATE_CHOICES = {
-      'falsefalsefalse': "  ",
-      'truefalsefalse': "S ",
-      'truetruefalse': "SX",
-      'falsefalsetrue': " X",
+    const newBoard = mapCellObject(board)
+    try {
+      const response = await axios.post('api/v1/boards/', {cells: newBoard})
+      
+      // response.data
+      // gameBoard = 
+      return response
+    } catch (error) {
+      console.error(error)
     }
-     
-    const newBoard = board.map((cell, index) => {
-      const isShip = cell.isShip
-      const isShipDeadCell = cell.isShipDeadCell
-      const isShooted = cell.isShooted
+    
+  }
 
-      const res: string = String(isShip) + String(isShipDeadCell) + String(isShooted)
-      return {
-        state: STATE_CHOICES[res as keyof typeof STATE_CHOICES],
-        coordinate_y: cell.coordinateY,
-        coordinate_x: cell.coordinateX
-      }
+  async function getShipsConfig() {
+    const response = await axios.get('api/v1/boards/')
+
+    const newBoard = reversMapCellObject(response.data.cells)
+    // newBoard.forEach((cell, index, array) => {
+    //   const boardCell = gameBoard[index]
+    //   boardCell.isShip = cell.isShip ? true : false
+    //   boardCell.isShipDeadCell = cell.isShipDeadCell ? true : false
+    //   boardCell.isShooted = cell.isShooted ? true : false
+    // })
+    for (let cell of newBoard) {
+      const coord = (cell.coordinateY * 10) + cell.coordinateX
+      const boardCell1 = gameBoard[coord]
+      boardCell1.isShip = cell.isShip ? true : false
+      boardCell1.isShipDeadCell = cell.isShipDeadCell ? true : false
+      boardCell1.isShooted = cell.isShooted ? true : false
+    }
+
+    await new Promise<any>(r => {
+      setTimeout(() => {
+        r(1)
+      }, 1000);
     })
 
-    const response = await axios.post('api/v1/boards', newBoard)
-    console.log(response);
+    // gameBoard.forEach((cell, index, array) => {
+    //   cell.isShip = true
+    // })
   }
 
   function shootCell(cell: BoardCell) {
@@ -101,6 +121,6 @@ export const useGameStore = defineStore('game', () => {
     isChoosing, shipLength, rCounter,
     ships, deleteMode,
     getGameBoardCellByCoord, positionShip, clearBoard,
-    setShipsConfig, shootCell
+    setShipsConfig, shootCell, getShipsConfig
   }
 })

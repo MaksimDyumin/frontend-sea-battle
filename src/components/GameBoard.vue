@@ -3,6 +3,7 @@ import { useGameStore } from '@/stores/game';
 import GameCell from './GameCell.vue';
 import { Orientation } from '@/stores/store.types';
 import { WhichBoard } from './components.types';
+import { onMounted } from 'vue';
 // import type { WhichBoard } from './components.types';
 
 const props = defineProps({
@@ -23,6 +24,10 @@ document.onkeydown = function (evt) {
     gameStore.orientation = gameStore.orientation === Orientation.onX ? Orientation.onY : Orientation.onX
   }
 };
+
+onMounted( async () =>{
+  await gameStore.getShipsConfig()
+})
 </script>
 
 <template>

@@ -1,12 +1,19 @@
 
 export type BoardCell = {
     isShip: boolean,
-    isShooted: boolean,
     isShipDeadCell: boolean,
+    isShooted: boolean,
     coordinateY: number,
     coordinateX: number,
 }
 export type GameBoard = Array<BoardCell>
+
+export type BackendCell = {
+    state: string,
+    coordinate_y: number,
+    coordinate_x: number
+}
+export type BackendBoard = Array<BackendCell>
 
 export type Ship = Array<BoardCell>
 
@@ -22,11 +29,11 @@ export enum Orientation {
 export type OrientationType = Record<Orientation, number>;
 
 export type RegisterBody = {
-    userName: string,
+    username: string,
     password: string
 }
 export type AuthBody = {
-    userName: string,
+    username: string,
     password: string
 }
 

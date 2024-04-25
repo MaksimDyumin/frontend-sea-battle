@@ -7,7 +7,7 @@ import useAxios from '@/useApi/useAxios'
 
 export const usePlayersStore = defineStore('players', () => {
   const players: Ref<Array<Player> | null> = ref(null)
-  const axios = useAxios()
+  const axios = useAxios().api
 
   async function getPlayers() {
     try {
