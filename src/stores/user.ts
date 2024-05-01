@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, computed } from 'vue'
+import { ref, computed, reactive } from 'vue'
 import type { Ref } from 'vue'
 import type { User, RegisterBody, AuthBody } from './store.types'
 import useAxios from '@/useApi/useAxios'
@@ -10,7 +10,7 @@ export const useUserStore = defineStore('user', () => {
   const user: Ref<User | null> = ref(null)
   const isUserNotLogedIn: Ref<boolean> = ref(true)
   const {api: axios, publicClient: client} = useAxios()
-  // const client = useAxios().
+  const players: Array<User> = reactive([]);
 
   async function auth(authBody: AuthBody) {
     try {
@@ -19,6 +19,7 @@ export const useUserStore = defineStore('user', () => {
       const accessToken = useCookie('accessToken')
       refreshToken.value = responce.data.refresh
       accessToken.value = responce.data.access
+      isUserNotLogedIn.value = false
       return responce
     } catch (error) {
       console.error(error)
@@ -41,5 +42,28 @@ export const useUserStore = defineStore('user', () => {
     user.value = null
   }
 
-  return { user, isUserNotLogedIn, auth, register, logOut }
+  async function getUserProfile() {
+    try {
+      const responce = await client.get('api/v1/profile/')
+      user.value = responce.data
+      return responce
+    } catch (error) {
+      console.error(error)
+      return false
+    }
+  }
+
+  async function getPlayers() {
+    try {
+      const response = await axios.get('api/v1/players_list')
+      response.data.forEach((player: User) => {
+        players.push(player)
+      })
+      return response
+    } catch (error) {
+      
+    }
+  }
+
+  return { user, isUserNotLogedIn, players, auth, register, logOut, getPlayers, getUserProfile }
 })

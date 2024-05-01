@@ -7,31 +7,48 @@ import { calcIndexByCoordinates } from '@/useApi/calcCoordinate'
 import useAxios from '@/useApi/useAxios'
 import mapCellObject from '@/useApi/mapCellObject'
 import reversMapCellObject from '@/useApi/reversMapCellObject'
+import mapShipCells from '@/useApi/mapShipCells'
+import reversMapShipCells from '@/useApi/reversMapShipCells'
+import searchShip from '@/useApi/searchShip'
 
 export const useGameStore = defineStore('game', () => {
-  const gameBoard: UnwrapNestedRefs<GameBoard> = reactive(boardMocer())
+  const gameBoard: Ref<GameBoard> = ref(boardMocer())
   const enemyGameBoard: UnwrapNestedRefs<GameBoard> = reactive(boardMocer())
   const shipLength: number = 1
   const orientation: Ref<Orientation> = ref(Orientation.onX)
   const enabledOrientation: Ref<boolean> = ref(true)
   const isChoosing: Ref<boolean> = ref(false)
   const axios = useAxios().api
+
+  
+
   let deleteMode = false
-  let ships: Array<Ship> = []
+  // let ships: Ref<Array<Ship>> = ref([])
+  let ships: Ref<Array<Ship>> = ref([])
   let rCounter = 1
   let mosemoveFn: any = null
   let choosedElement: any = null
 
+  const cBoard = computed((newWal): GameBoard => {
+    return gameBoard.value
+  })
+
+  const cShips = computed((newWal): Array<Ship> => {
+    return ships.value
+  })
+
+  
+
 
   function getGameBoardCellByCoord(corX: number, corY: number) {
-    return gameBoard.filter((cell) => {
+    return gameBoard.value.filter((cell) => {
       if (cell.coordinateX === corX && cell.coordinateY === corY) return true
     })
   }
 
   function clearBoard() {
-    ships.forEach(ship => {
-      ship.forEach((boardCell) => {
+    ships.value.forEach((ship: Ship) => {
+      ship.forEach((boardCell: BoardCell) => {
         boardCell.isShip = false
         boardCell.isShooted = false
       })
@@ -40,11 +57,10 @@ export const useGameStore = defineStore('game', () => {
 
   async function setShipsConfig(board: GameBoard) {
     const newBoard = mapCellObject(board)
+    const newShips = mapShipCells(ships.value)
+    console.log({cells: newBoard, ships: newShips})
     try {
-      const response = await axios.post('api/v1/boards/', {cells: newBoard})
-      
-      // response.data
-      // gameBoard = 
+      const response = await axios.post('api/v1/boards/', {cells: newBoard, ships: newShips})
       return response
     } catch (error) {
       console.error(error)
@@ -54,36 +70,18 @@ export const useGameStore = defineStore('game', () => {
 
   async function getShipsConfig() {
     const response = await axios.get('api/v1/boards/')
-
+    
     const newBoard = reversMapCellObject(response.data.cells)
-    // newBoard.forEach((cell, index, array) => {
-    //   const boardCell = gameBoard[index]
-    //   boardCell.isShip = cell.isShip ? true : false
-    //   boardCell.isShipDeadCell = cell.isShipDeadCell ? true : false
-    //   boardCell.isShooted = cell.isShooted ? true : false
-    // })
-    for (let cell of newBoard) {
-      const coord = (cell.coordinateY * 10) + cell.coordinateX
-      const boardCell1 = gameBoard[coord]
-      boardCell1.isShip = cell.isShip ? true : false
-      boardCell1.isShipDeadCell = cell.isShipDeadCell ? true : false
-      boardCell1.isShooted = cell.isShooted ? true : false
-    }
+    gameBoard.value = newBoard
 
-    await new Promise<any>(r => {
-      setTimeout(() => {
-        r(1)
-      }, 1000);
-    })
+    const responceShips = reversMapShipCells(response.data.ships) 
+    const shipsFromBoard = searchShip(responceShips, gameBoard.value)
+    ships.value = shipsFromBoard
 
-    // gameBoard.forEach((cell, index, array) => {
-    //   cell.isShip = true
-    // })
+    return response
   }
 
   function shootCell(cell: BoardCell) {
-    // axios.post('shootCell', cell)
-    // cell.isShip
     cell.isShooted = true
   }
 
@@ -101,25 +99,26 @@ export const useGameStore = defineStore('game', () => {
       let stepValue = i % 2 === 0 ? stepLength : -stepLength
       const coordinate = calcIndexByCoordinates(startCell, stepValue, orientation)
 
-      if (coordinate < 0 || gameBoard[coordinate].isShip || (orientation.value === Orientation.onX && startCell.coordinateY !== Math.floor(coordinate / 10))) {
+      if (coordinate < 0 || gameBoard.value[coordinate].isShip || (orientation.value === Orientation.onX && startCell.coordinateY !== Math.floor(coordinate / 10))) {
         throw Error('Неправильное расположение корабля')
       }
 
       indexesArray.push(coordinate)
     }
-    let store = []
+    let ship: Ship = []
     for (const index of indexesArray) {
-      gameBoard[index].isShip = true
-      store.push(gameBoard[index])
+      gameBoard.value[index].isShip = true
+      ship.push(gameBoard.value[index])
     }
-    ships.push(store)
+    
+    ships.value.push(ship)
   }
 
   return {
     gameBoard, enemyGameBoard, orientation,
     enabledOrientation, choosedElement, mosemoveFn,
     isChoosing, shipLength, rCounter,
-    ships, deleteMode,
+    ships, deleteMode, cBoard, cShips,
     getGameBoardCellByCoord, positionShip, clearBoard,
     setShipsConfig, shootCell, getShipsConfig
   }

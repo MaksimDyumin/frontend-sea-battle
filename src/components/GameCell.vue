@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useGameStore } from '@/stores/game';
-import { Orientation, type BoardCell } from '@/stores/store.types';
+import { Orientation, type BoardCell, type Ship } from '@/stores/store.types';
 import { WhichBoard } from './components.types';
 import { computed, ref } from 'vue';
 
@@ -24,10 +24,12 @@ function setShipToBoard(cell: BoardCell) {
 }
 
 function deleteShipFromBoard(cell: BoardCell) {
-  gameStore.ships.forEach((ship) => {
+  console.log(cell)
+  gameStore.ships.forEach((ship: Ship) => {
     let flag = false
     ship.forEach((boardCell) => {
-      if (boardCell == cell) flag = true
+      console.log(boardCell, cell)
+      if (boardCell.coordinateX == cell.coordinateX && boardCell.coordinateY == cell.coordinateY) flag = true
     })
     if (flag) {
       console.log(ship)

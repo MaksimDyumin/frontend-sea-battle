@@ -4,11 +4,11 @@
     <transition name="fade" mode="out-in">
       <div v-if="isLoading" class="loading">Загрузка...</div>
       <ul v-else>
-        <li @click="$router.push({ name: 'battle' })" v-for="player in gameStore.players" :key="player.id"
+        <li @click="$router.push({ name: 'battle' })" v-for="player in userStore.players" :key="player.id"
           class="player-item">
-          <span>{{ player.userName }}</span> - <span class="status" :class="getStatusClass(player.status)">{{
-            player.status
-          }}</span>
+          <span>{{ player.username }}</span> - <span class="status" :class="getStatusClass(player?.status)">
+            {{ player.status ? player.status : 'Не известно' }}
+          </span>
         </li>
       </ul>
     </transition>
@@ -16,19 +16,21 @@
 </template>
 
 <script setup lang="ts">
-import { usePlayersStore } from '@/stores/players';
+// import { usePlayersStore } from '@/stores/players';
+import { useUserStore } from '@/stores/user';
 import { ref, onMounted } from 'vue';
 import type { Ref } from 'vue';
 
-const gameStore = usePlayersStore()
+const userStore = useUserStore()
 const isLoading: Ref<boolean> = ref(true);
 
-const getStatusClass = (status: string) => {
+const getStatusClass = (status: string | undefined) => {
+  if (status === undefined) return 'status-offline'
   return status.toLowerCase() === 'онлайн' ? 'status-online' : 'status-offline';
 };
 
 onMounted(async () => {
-  await gameStore.getPlayers()
+  // await userStore.getPlayers()
   isLoading.value = false;
 });
 </script>

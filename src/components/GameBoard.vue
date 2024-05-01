@@ -13,7 +13,9 @@ const props = defineProps({
 });
 
 const gameStore = useGameStore()
-const gameBoard = props.which === WhichBoard.player ? gameStore.gameBoard : gameStore.enemyGameBoard
+// let gameBoard = props.which === WhichBoard.player ? gameStore.gameBoard : gameStore.enemyGameBoard
+
+
 
 const letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'i', 'J']
 
@@ -26,7 +28,10 @@ document.onkeydown = function (evt) {
 };
 
 onMounted( async () =>{
-  await gameStore.getShipsConfig()
+  const res = await gameStore.getShipsConfig(gameStore.ships)
+  // console.log(res.data.cells)
+  // gameStore.gameBoard = res.data.cells
+  // console.log(gameStore.cBoard)
 })
 </script>
 
@@ -44,7 +49,8 @@ onMounted( async () =>{
         <span v-for="letter in letters">{{ letter }}</span>
       </div>
       <div class="game-grid">
-        <GameCell :which="which" v-for="cell in gameBoard" :key="cell.coordinateX + '_' + cell.coordinateX"
+        {{  }}
+        <GameCell :which="which" v-for="cell in gameStore.cBoard" :key="cell.coordinateX + '_' + cell.coordinateX"
           :cell="cell" />
       </div>
     </div>

@@ -1,5 +1,14 @@
 <script setup lang="ts">
 import ListOpponents from '@/components/ListOpponents.vue'
+import { useUserStore } from '@/stores/user';
+import { onMounted } from 'vue';
+
+
+const userStore = useUserStore()
+
+onMounted( async () => {
+    await userStore.getPlayers()
+})
 </script>
 
 <template>

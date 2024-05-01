@@ -1,0 +1,20 @@
+{
+  "cells": [
+    {
+      "state": "S ", 
+      "coordinate_y": 1,
+      "coordinate_x": 1
+    }
+  ],
+
+  "ships": [
+    {
+      "cells": {
+        "state": "S ", 
+        "coordinate_y": 1,
+        "coordinate_x": 1
+      }
+    }
+  ]
+
+}

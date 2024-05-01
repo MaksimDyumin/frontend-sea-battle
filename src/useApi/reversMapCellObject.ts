@@ -20,5 +20,5 @@ export default function reversMapCellObject(board: BackendBoard): GameBoard {
     }
   })
 
-  return newBoard
+  return newBoard.slice(0, 100)
 }

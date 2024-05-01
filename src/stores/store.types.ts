@@ -17,9 +17,15 @@ export type BackendBoard = Array<BackendCell>
 
 export type Ship = Array<BoardCell>
 
+export type BackendShip = {
+    board?: Array<BackendCell>
+    cells: Array<BackendCell>
+}
+    
 export type User = {
     id: number,
-    name: string
+    username: string,
+    status?: string
 }
 
 export enum Orientation {
